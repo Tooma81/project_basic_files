@@ -38,7 +38,6 @@ app.get('/', (req, res) => {
 	//tasks list data from file
 	readFile("./tasks.json")
 		.then(tasks => {
-			console.log(tasks)
 			res.render("index", {tasks: tasks})
 		})	
 })
@@ -65,7 +64,6 @@ app.post("/", (req, res) => {
 				"task" : req.body.task
 			}
 			tasks.push(newTask)
-			console.log(tasks)
 			data = JSON.stringify(tasks, null, 2)
 			writeFile("tasks.json", data)
 			res.redirect("/")
@@ -86,6 +84,17 @@ app.get("/delete-task/:taskId", (req, res) => {
 		res.redirect("/")
 	})
 })
+
+app.get("/delete-tasks", (req, res) => {
+	readFile("./tasks.json")
+	.then(tasks => {
+		tasks.splice(0);
+		data = JSON.stringify(tasks, null, 2)
+		writeFile("tasks.json", data)
+	})
+	res.redirect("/")
+})
+
 
 app.listen(3001, () => {
 	console.log('Example is started at http://localhost:3001')

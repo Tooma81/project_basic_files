@@ -33,7 +33,6 @@
 			    </div>
 			    <div class="card-action">
 			    	<ul class="collection">
-			    	<% console.log(tasks) %>
 			    	<% tasks.forEach((task) => { %>
 			    		<li class="collection item">
 			    			<%= task.task %>
@@ -42,6 +41,7 @@
 			    		</li>
 			    	<% }) %>
 			    	</ul>
+			    	<a class="btn" href="delete-tasks">Clear All</a>
 			    </div>
 			  </div>
 			</div>
