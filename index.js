@@ -38,7 +38,10 @@ app.get('/', (req, res) => {
 	//tasks list data from file
 	readFile("./tasks.json")
 		.then(tasks => {
-			res.render("index", {tasks: tasks})
+			res.render("index", {
+				tasks: tasks,
+				error: null
+			})
 		})	
 })
 
@@ -46,6 +49,17 @@ app.get('/', (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 
 app.post("/", (req, res) => {
+	//check input data
+	if(req.body.task.trim().length == 0){
+		error = "Please insert a task"
+		readFile("./tasks.json")
+		.then(tasks => {
+			res.render("index", {
+				tasks: tasks,
+				error: error
+			})
+		})
+	} else {
 	//tasks list data from file
 	readFile("./tasks.json")
 		.then(tasks => {
@@ -67,7 +81,8 @@ app.post("/", (req, res) => {
 			data = JSON.stringify(tasks, null, 2)
 			writeFile("tasks.json", data)
 			res.redirect("/")
-		})	
+		})
+	}	
 })
 
 app.get("/delete-task/:taskId", (req, res) => {
