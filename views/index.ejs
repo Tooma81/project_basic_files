@@ -28,14 +28,23 @@
 					<% console.log(error) %>
 					<span class="card-title">ToDo List</span>
 					<div class="row">
+					<% if (updating) { %>
+					<form class="col s12" method="post" action="/commit-update">
+					<% } else { %>
 			      	<form class="col s12" method="post" action="/">
+			      	<% } %>
 			      		<div class="row">
 			      			<div class="input-field col s12">
 			      				<input placeholder="Task" id="task" type="text" name="task">
 			      				<label for="task">Insert Task</label>
 			      			</div>
 			      		</div>
+			      		<% if (updating) { %>
+			      		<input class="btn" type="submit" value="Update Task">
+			      		<a class="btn" href="/cancel-update">Cancel</a>
+			      		<% } else { %>
 		      			<input class="btn" type="submit" value="Add Task">
+		      			<% } %>
 			    	</form>
 			        </div>
 			    </div>
@@ -44,12 +53,18 @@
 			    	<% tasks.forEach((task) => { %>
 			    		<li class="collection item">
 			    			<%= task.task %>
+			    			<% if (!updating) { %>
 			    			<a href="delete-task/<%= task.id %>" class="secondary-content">
-			    			<i class="material-icons">delete</i></a>
+			    			<i class="material-icons red-text">delete</i></a>
+			    			<a href="update-task/<%= task.id %>" class="secondary-content">
+			    			<i class="material-icons">create</i></a>
+			    			<% } %>
 			    		</li>
 			    	<% }) %>
 			    	</ul>
+			    	<% if (!updating) { %>
 			    	<a class="btn" href="delete-tasks">Clear All</a>
+			    	<% } %>
 			    </div>
 			    </div>
 			</div>

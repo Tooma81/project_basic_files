@@ -12,7 +12,6 @@ const readFile = (filename) => {
 		//get data form file 
 		fs.readFile(filename, "utf-8", (err, data) => {
 			if (err) {
-				console.error(err);
 				return;
 			}
 			//task list data from file
@@ -27,20 +26,33 @@ const writeFile = (filename, data) => {
 		// get data from file
 		fs.writeFile(filename, data, "utf-8", err => {
 			if (err) {
-				console.error(err);
 				return;
 			}
 			resolve(true)
 		})
 	})
 }
+
+const inputError = (res) => {
+	error = "Please insert a task"
+	readFile("./tasks.json")
+	.then(tasks => {
+		res.render("index", {
+			tasks: tasks,
+			error: error,
+			updating: false
+		})
+	})
+}
+
 app.get('/', (req, res) => {
 	//tasks list data from file
 	readFile("./tasks.json")
 		.then(tasks => {
 			res.render("index", {
 				tasks: tasks,
-				error: null
+				error: null,
+				updating: false
 			})
 		})	
 })
@@ -51,20 +63,12 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/", (req, res) => {
 	//check input data
 	if(req.body.task.trim().length == 0){
-		error = "Please insert a task"
-		readFile("./tasks.json")
-		.then(tasks => {
-			res.render("index", {
-				tasks: tasks,
-				error: error
-			})
-		})
+		inputError(res)
 	} else {
 	//tasks list data from file
 	readFile("./tasks.json")
 		.then(tasks => {
-			//add new task
-			//create new id
+			//create task id
 			let index
 			if (tasks.length === 0)
 			{
@@ -77,12 +81,59 @@ app.post("/", (req, res) => {
 				"id" : index,
 				"task" : req.body.task
 			}
-			tasks.push(newTask)
+			tasks.push(newTask)	
 			data = JSON.stringify(tasks, null, 2)
 			writeFile("tasks.json", data)
 			res.redirect("/")
 		})
 	}	
+})
+
+let taskToUpdate;
+let update;
+
+app.get("/update-task/:taskId", (req, res) => {
+	update = true
+	readFile("./tasks.json")
+	.then(tasks => {
+		taskToUpdate = tasks.find(task => task.id == req.params.taskId)
+		console.log("Task for updating =>", taskToUpdate)
+		res.render("index", {
+			tasks: tasks,
+			error: null,
+			updating: true
+		})
+	})
+})
+
+app.post("/commit-update", (req,res) => {
+	//check input data
+	if(req.body.task.trim().length == 0){
+		inputError(res)
+	} else {
+		let index
+		index = taskToUpdate.id
+		const updatedTask = {
+			"id": index,
+			"task": req.body.task
+		}
+		readFile("./tasks.json")
+			.then(tasks => {
+			tasks.forEach((task, index) => {
+				if(task.id === taskToUpdate.id) {
+					tasks.splice(index, 1, updatedTask)
+				}
+			})
+			data = JSON.stringify(tasks, null, 2)
+			writeFile("tasks.json", data)
+			res.redirect("/")
+		})
+	}
+})
+
+app.get("/cancel-update", (req, res) => {
+	console.log("Update canceled")
+	res.redirect("/")
 })
 
 app.get("/delete-task/:taskId", (req, res) => {
